@@ -39,7 +39,7 @@ function objToArr(obj) {
   let arr = Object.entries(obj);
   let arrofMovie = arr.map((movie) => {
     movie[1].id = movie[0];
-    state.todoArr.push(movie[1]);
+    state.todoArr.unshift(movie[1]);
     cl(state.todoArr);
   });
 }
@@ -119,7 +119,7 @@ function createLI(newTodo) {
     </div>
     <div>
         <button onclick="onTodoEdit(this)" class="btn btn-sm btn-primary">Edit</button>
-        <button onclick="onTodoRemove(this)" class="btn btn-sm btn-danger">Remove</button>
+        <button onclick="onTodoRemove(this)" class="btn btn-sm btn-danger deleteBtn">Remove</button>
     </div>
   `;
   todoContainer.prepend(li);
@@ -170,7 +170,7 @@ function rendering(arr) {
           </div>
           <div>
               <button onclick="onTodoEdit(this)" class="btn btn-sm btn-primary">Edit</button>
-              <button onclick="onTodoRemove(this)" class="btn btn-sm btn-danger">Remove</button>
+              <button onclick="onTodoRemove(this)" class="btn btn-sm btn-danger deleteBtn">Remove</button>
           </div>
       </li>
     `;
@@ -184,6 +184,15 @@ function rendering(arr) {
 function onTodoEdit(ele) {
   let editId = ele.closest("li").id;
   state.editId = editId;
+
+  let allDeleteBtns = document.querySelectorAll(".deleteBtn");
+
+  allDeleteBtns.forEach((ele) => {
+    ele.disabled = false;
+  });
+
+  let li = ele.closest("li");
+  li.querySelector(".deleteBtn").disabled = true;
 
   let editObj = state.todoArr.find((ele) => ele.id === editId);
 
@@ -199,6 +208,9 @@ function onTodoEdit(ele) {
 async function onTodoUpdate() {
   try {
     let updateId = state.editId;
+
+    let li = document.getElementById(updateId);
+    li.querySelector(".deleteBtn").disabled = false;
 
     let updatedObj = {
       id: updateId,
@@ -250,7 +262,7 @@ function updatedLI(data) {
   </div>
   <div>
       <button onclick="onTodoEdit(this)" class="btn btn-sm btn-primary">Edit</button>
-      <button onclick="onTodoRemove(this)" class="btn btn-sm btn-danger">Remove</button>
+      <button onclick="onTodoRemove(this)" class="btn btn-sm btn-danger deleteBtn">Remove</button>
   </div>
   `;
 }
@@ -322,7 +334,6 @@ async function onTodosStatusChange(ele) {
 
     let data = await res.json();
     cl(data);
-
 
     let localObj = state.todoArr.find((ele) => ele.id === todoId);
 

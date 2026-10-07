@@ -96,7 +96,7 @@ async function onTodoAdd(event) {
     createLI(newTodo);
 
     todoForm.reset();
-  } catch {
+  } catch (err) {
     snackbar(err, "error");
   } finally {
     showSpinner(false);
@@ -114,7 +114,7 @@ function createLI(newTodo) {
 
   li.innerHTML = `
       <div>
-        <input type="checkbox" ${newTodo.isCompleted ? "checked" : ""}>
+        <input type="checkbox" onclick="onTodosStatusChange(this)" ${newTodo.isCompleted ? "checked" : ""}>
         <strong>${newTodo.todoItem}</strong>
     </div>
     <div>
@@ -147,8 +147,8 @@ async function showOnUI() {
     cl(state.todoArr);
 
     rendering(state.todoArr);
-  } catch {
-    snackbar("Something went wrong", "error");
+  } catch (err) {
+    snackbar(err.message, "error");
   } finally {
     showSpinner(false);
   }
@@ -165,7 +165,7 @@ function rendering(arr) {
     result += `
           <li class="list-group-item d-flex justify-content-between" id="${obj.id}">
           <div>
-              <input type="checkbox" ${obj.isCompleted ? "checked" : ""}>
+              <input type="checkbox" onclick="onTodosStatusChange(this)" ${obj.isCompleted ? "checked" : ""}>
               <strong>${obj.todoItem}</strong>
           </div>
           <div>
@@ -231,8 +231,8 @@ async function onTodoUpdate() {
     addTodoBtn.classList.remove("d-none");
     state.editId = null;
     todoForm.reset();
-  } catch {
-    snackbar("Something went wrong", "error");
+  } catch (err) {
+    snackbar(err.message, "error");
   } finally {
     showSpinner(false);
   }
@@ -245,7 +245,7 @@ function updatedLI(data) {
 
   li.innerHTML = `
     <div>
-      <input type="checkbox" ${data.isCompleted ? "checked" : ""}>
+      <input type="checkbox" onclick="onTodosStatusChange(this)" ${data.isCompleted ? "checked" : ""}>
       <strong>${data.todoItem}</strong>
   </div>
   <div>
@@ -292,12 +292,49 @@ async function onTodoRemove(ele) {
       state.todoArr.splice(getIndex, 1);
 
       ele.closest("li").remove();
-    } catch {
-      snackbar("something went wrong", "error");
+    } catch (err) {
+      snackbar(err.message, "error");
     } finally {
       showSpinner(false);
     }
   }
 }
+
+// onTodosStatusChange
+
+async function onTodosStatusChange(ele) {
+  try {
+    let todoId = ele.closest("li").id;
+
+    let isCompleted = ele.checked;
+
+    let STATUSCHANGE_URL = `${BASE_URL}/todo2/${todoId}.json`;
+
+    showSpinner(true);
+    let res = await fetch(STATUSCHANGE_URL, {
+      method: "PATCH",
+      body: JSON.stringify({ isCompleted: isCompleted }),
+      headers: {
+        "Content-Type": "application/json",
+        authorization: "JWT TOKEN",
+      },
+    });
+
+    let data = await res.json();
+    cl(data);
+
+
+    let localObj = state.todoArr.find((ele) => ele.id === todoId);
+
+    localObj.isCompleted = isCompleted;
+
+    cl(state.todoArr);
+  } catch (err) {
+    snackbar(err.message, "error");
+  } finally {
+    showSpinner(false);
+  }
+}
+
 todoForm.addEventListener("submit", onTodoAdd);
 updateTodoBtn.addEventListener("click", onTodoUpdate);

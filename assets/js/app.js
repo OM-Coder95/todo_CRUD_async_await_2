@@ -99,6 +99,8 @@ async function onTodoAdd(event) {
 
     createLI(newTodo);
 
+    snackbar("Todo created successfully!", "success");
+
     todoForm.reset();
   } catch (err) {
     snackbar(err, "error");
@@ -316,6 +318,8 @@ async function onTodoUpdate() {
 
     updatedLI(data);
 
+    snackbar("Todo updated successfully!", "success");
+
     updateTodoBtn.classList.add("d-none");
     addTodoBtn.classList.remove("d-none");
     state.editId = null;
@@ -376,8 +380,6 @@ function updatedLI(data) {
 
                                     </div>
                                 </div>`;
-
-                        
 }
 
 // Remove
@@ -410,13 +412,14 @@ async function onTodoRemove(ele) {
 
       let data = await res.json();
 
-      cl(data);
 
       let getIndex = state.todoArr.findIndex((ele) => ele.id === removeId);
 
       state.todoArr.splice(getIndex, 1);
 
       ele.closest("li").remove();
+
+      snackbar("Todo removed successfully!", "success");
     } catch (err) {
       snackbar(err.message, "error");
     } finally {

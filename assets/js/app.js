@@ -2,6 +2,7 @@ const cl = console.log;
 // form-controls
 const todoForm = document.getElementById("todoForm");
 const todoName = document.getElementById("todoName");
+const todoDescription = document.getElementById("todoDescription");
 const isCompleted = document.getElementById("isCompleted");
 
 // Container
@@ -36,12 +37,14 @@ function popup(msg, icon) {
 // arrOfObj
 
 function objToArr(obj) {
-  let arr = Object.entries(obj);
-  let arrofMovie = arr.map((movie) => {
-    movie[1].id = movie[0];
-    state.todoArr.unshift(movie[1]);
-    cl(state.todoArr);
-  });
+  state.todoArr = Object.entries(obj)
+    .map(([id, todo]) => {
+      return {
+        ...todo,
+        id: id,
+      };
+    })
+    .reverse();
 }
 
 // spinner
@@ -72,6 +75,7 @@ async function onTodoAdd(event) {
   try {
     let newTodo = {
       todoItem: todoName.value.trim(),
+      description: todoDescription.value.trim(),
       isCompleted: isCompleted.value === "yes" ? true : false,
     };
 
@@ -110,18 +114,54 @@ function createLI(newTodo) {
 
   li.id = newTodo.id;
 
-  li.className = `list-group-item d-flex justify-content-between`;
+  li.className = `list-group-item`;
 
   li.innerHTML = `
-      <div>
-        <input type="checkbox" onclick="onTodosStatusChange(this)" ${newTodo.isCompleted ? "checked" : ""}>
-        <strong>${newTodo.todoItem}</strong>
-    </div>
-    <div>
-        <button onclick="onTodoEdit(this)" class="btn btn-sm btn-primary">Edit</button>
-        <button onclick="onTodoRemove(this)" class="btn btn-sm btn-danger deleteBtn">Remove</button>
-    </div>
-  `;
+
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <input type="checkbox" onclick="onTodosStatusChange(this)" ${
+                                          newTodo.isCompleted ? "checked" : ""
+                                        }>
+                                        <strong>${newTodo.todoItem}</strong>
+                                    </div>
+
+                                    <div>
+                                        <button onclick="onTodoEdit(this)" class="btn btn-sm btn-primary">
+                                            Edit
+                                        </button>
+
+                                        <button onclick="onTodoRemove(this)" class="btn btn-sm btn-danger deleteBtn">
+                                            Remove
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="accordion mt-2" id="accordion-${newTodo.id}">
+                                    <div class="card">
+
+                                        <div class="card-header">
+                                            <button class="btn btn-link" type="button" data-toggle="collapse"
+                                                data-target="#description-${newTodo.id}" aria-expanded="false"
+                                                aria-controls="description-${newTodo.id}">
+
+                                                View Description
+                                            </button>
+                                        </div>
+
+                                        <div id="description-${newTodo.id}" class="collapse"
+                                            data-parent="#accordion-${newTodo.id}">
+
+                                            <div class="card-body">
+                                                ${newTodo.description || "No description available"}
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                            `;
   todoContainer.prepend(li);
 }
 
@@ -162,18 +202,52 @@ function rendering(arr) {
   let result = "";
 
   arr.forEach((obj) => {
-    result += `
-          <li class="list-group-item d-flex justify-content-between" id="${obj.id}">
-          <div>
-              <input type="checkbox" onclick="onTodosStatusChange(this)" ${obj.isCompleted ? "checked" : ""}>
-              <strong>${obj.todoItem}</strong>
-          </div>
-          <div>
-              <button onclick="onTodoEdit(this)" class="btn btn-sm btn-primary">Edit</button>
-              <button onclick="onTodoRemove(this)" class="btn btn-sm btn-danger deleteBtn">Remove</button>
-          </div>
-      </li>
-    `;
+    result += `<li class="list-group-item" id="${obj.id}">
+
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <input type="checkbox" onclick="onTodosStatusChange(this)" ${
+                                          obj.isCompleted ? "checked" : ""
+                                        }>
+                                        <strong>${obj.todoItem}</strong>
+                                    </div>
+
+                                    <div>
+                                        <button onclick="onTodoEdit(this)" class="btn btn-sm btn-primary">
+                                            Edit
+                                        </button>
+
+                                        <button onclick="onTodoRemove(this)" class="btn btn-sm btn-danger deleteBtn">
+                                            Remove
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="accordion mt-2" id="accordion-${obj.id}">
+                                    <div class="card">
+
+                                        <div class="card-header">
+                                            <button class="btn btn-link" type="button" data-toggle="collapse"
+                                                data-target="#description-${obj.id}" aria-expanded="false"
+                                                aria-controls="description-${obj.id}">
+
+                                                View Description
+                                            </button>
+                                        </div>
+
+                                        <div id="description-${obj.id}" class="collapse"
+                                            data-parent="#accordion-${obj.id}">
+
+                                            <div class="card-body">
+                                                ${obj.description || "No description available"}
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                            </li>`;
   });
 
   todoContainer.innerHTML = result;
@@ -195,8 +269,10 @@ function onTodoEdit(ele) {
   li.querySelector(".deleteBtn").disabled = true;
 
   let editObj = state.todoArr.find((ele) => ele.id === editId);
+  cl(editObj);
 
   todoName.value = editObj.todoItem;
+  todoDescription.value = editObj.description;
   isCompleted.value = editObj.isCompleted ? "yes" : "no";
 
   updateTodoBtn.classList.remove("d-none");
@@ -215,6 +291,7 @@ async function onTodoUpdate() {
     let updatedObj = {
       id: updateId,
       todoItem: todoName.value.trim(),
+      description: todoDescription.value.trim(),
       isCompleted: isCompleted.value === "yes" ? true : false,
     };
 
@@ -256,15 +333,51 @@ function updatedLI(data) {
   let li = document.getElementById(data.id);
 
   li.innerHTML = `
-    <div>
-      <input type="checkbox" onclick="onTodosStatusChange(this)" ${data.isCompleted ? "checked" : ""}>
-      <strong>${data.todoItem}</strong>
-  </div>
-  <div>
-      <button onclick="onTodoEdit(this)" class="btn btn-sm btn-primary">Edit</button>
-      <button onclick="onTodoRemove(this)" class="btn btn-sm btn-danger deleteBtn">Remove</button>
-  </div>
-  `;
+
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <input type="checkbox" onclick="onTodosStatusChange(this)" ${
+                                          data.isCompleted ? "checked" : ""
+                                        }>
+                                        <strong>${data.todoItem}</strong>
+                                    </div>
+
+                                    <div>
+                                        <button onclick="onTodoEdit(this)" class="btn btn-sm btn-primary">
+                                            Edit
+                                        </button>
+
+                                        <button onclick="onTodoRemove(this)" class="btn btn-sm btn-danger deleteBtn">
+                                            Remove
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="accordion mt-2" id="accordion-${data.id}">
+                                    <div class="card">
+
+                                        <div class="card-header">
+                                            <button class="btn btn-link" type="button" data-toggle="collapse"
+                                                data-target="#description-${data.id}" aria-expanded="false"
+                                                aria-controls="description-${data.id}">
+
+                                                View Description
+                                            </button>
+                                        </div>
+
+                                        <div id="description-${data.id}" class="collapse"
+                                            data-parent="#accordion-${data.id}">
+
+                                            <div class="card-body">
+                                                ${data.description || "No description available"}
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+                                </div>`;
+
+                        
 }
 
 // Remove
@@ -342,6 +455,7 @@ async function onTodosStatusChange(ele) {
     cl(state.todoArr);
   } catch (err) {
     snackbar(err.message, "error");
+    console.error(err);
   } finally {
     showSpinner(false);
   }

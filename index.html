@@ -26,6 +26,11 @@
                             </div>
 
                             <div class="form-group">
+                                <label for="todoDescription">Descritpion</label>
+                                <textarea id="todoDescription" class="form-control"></textarea>
+                            </div>
+
+                            <div class="form-group">
                                 <label for="isCompleted">Is Completed:</label>
                                 <select id="isCompleted" class="form-control">
                                     <option value="yes">Yes</option>
@@ -45,16 +50,54 @@
                 <div class="card">
                     <div class="card-body">
                         <ul id="todoContainer" class="list-group">
-                            <!-- <li class="list-group-item d-flex justify-content-between">
-                                <div>
-                                    <input type="checkbox" >
-                                    <strong>todo</strong>
+
+
+                            <!-- <li class="list-group-item">
+
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <input type="checkbox" onclick="onTodosStatusChange(this)" ${obj.isCompleted
+                                        ? "checked" : "" }>
+                                    <strong>${todo.todoName}</strong>
+
+                                    <div>
+                                        <button onclick="onTodoEdit(this)" class="btn btn-sm btn-primary">
+                                            Edit
+                                        </button>
+
+                                        <button onclick="onTodoRemove(this)" class="btn btn-sm btn-danger">
+                                            Remove
+                                        </button>
+                                    </div>
                                 </div>
-                                <div>
-                                    <button onclick="onTodoEdit(this)" class="btn btn-sm btn-primary">Edit</button>
-                                    <button onclick="onTodoRemove(this)" class="btn btn-sm btn-danger">Remove</button>
+
+                                <div class="accordion mt-2" id="accordion-${todo.id}">
+                                    <div class="card">
+
+                                        <div class="card-header">
+                                            <button class="btn btn-link" type="button" data-toggle="collapse"
+                                                data-target="#description-${todo.id}" aria-expanded="false"
+                                                aria-controls="description-${todo.id}">
+
+                                                View Description
+                                            </button>
+                                        </div>
+
+                                        <div id="description-${todo.id}" class="collapse"
+                                            data-parent="#accordion-${todo.id}">
+
+                                            <div class="card-body">
+                                                ${todo.todoDescription || "No description available"}
+                                            </div>
+
+                                        </div>
+
+                                    </div>
                                 </div>
-                            </li> -->
+
+                            </li>
+
+ -->
+
                         </ul>
                     </div>
                 </div>
@@ -68,6 +111,12 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct"
+        crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="./assets/js/app.js"></script>
 </body>
